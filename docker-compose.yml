@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  memora-web:
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - memora_data:/var/www/html/sistemas/memora-env
+    environment:
+      - DJANGO_SETTINGS_MODULE=memora.settings
+
+volumes:
+  memora_data:
