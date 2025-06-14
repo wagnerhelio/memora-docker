@@ -1,6 +1,6 @@
 # 🚀 Projeto MEMORA (Django + Docker)
 
-Sistema web baseado em Django, containerizado com Docker e pronto para desenvolvimento local ou deploy em ambiente simulado com Apache + mod_wsgi.
+Sistema web baseado em Django, containerizado com Docker e pronto para desenvolvimento local ou simulação de produção com Apache + mod_wsgi.
 
 ---
 
@@ -17,131 +17,127 @@ Sistema web baseado em Django, containerizado com Docker e pronto para desenvolv
 
 ```
 memora-docker/
-├── memora/                  # Projeto Django (manage.py, apps, settings)
+├── memora/                  # Projeto Django
 │   ├── manage.py
-│   ├── memora/              # Configurações (settings.py, urls.py)
+│   ├── memora/              # Configurações do Django
 │   ├── perform/             # App centralizador
 │   └── sspgo/               # App funcional SSPGO
 ├── apache/                  # Configuração Apache/mod_wsgi
-├── static/                  # Arquivos estáticos coletados
-├── requirements.txt
+├── static/                  # Arquivos coletados (não versionados)
+├── .github/workflows/ci.yml # Pipeline CI
+├── check_sync.ps1           # Script de verificação de sincronização (Windows)
 ├── docker-compose.yml
 ├── Dockerfile
-└── .env (opcional)
+├── .gitignore
+└── requirements.txt
 ```
 
 ---
 
-## 🔧 Instalação Local (sem Docker)
+## 🔧 Instalação Local (Windows)
 
-### 1. Clone o repositório
+### 1. Clonar o projeto
 
-```bash
+```powershell
 git clone https://github.com/SEU_USUARIO/memora-docker.git
 cd memora-docker
 ```
 
-### 2. Crie o ambiente virtual
+### 2. Criar ambiente virtual
 
-```bash
+```powershell
 python -m venv venv
-venv\Scripts\activate       # Windows
-# ou
-source venv/bin/activate   # Linux/macOS
+venv\Scripts\activate
 ```
 
-### 3. Instale as dependências
+### 3. Instalar dependências
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
-### 4. Configure o ambiente
+### 4. Executar localmente
 
-Crie (opcional) um `.env` com:
-
-```
-DEBUG=True
-SECRET_KEY=sua_chave_secreta
-```
-
-### 5. Execute o projeto
-
-```bash
+```powershell
 cd memora
 python manage.py migrate
 python manage.py runserver
 ```
 
-Acesse em `http://127.0.0.1:8000/`
+Acesse: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
 ## 🐳 Executando com Docker
 
-### 1. Build e run com Docker Compose
+### 1. Subir o ambiente (com bind mount)
 
-```bash
+Certifique-se de que seu `docker-compose.yml` está assim:
+
+```yaml
+volumes:
+  - .:/var/www/html/sistemas/memora-env
+```
+
+Depois execute:
+
+```powershell
 docker-compose up --build
 ```
 
-O projeto estará acessível em:
+### 2. Criar superusuário (opcional)
 
-```
-http://localhost:8000/
-```
-
-### 2. Acessar o container
-
-```bash
-docker-compose exec memora-web bash
-```
-
-### 3. Criar superusuário (opcional)
-
-```bash
-python manage.py createsuperuser
+```powershell
+docker-compose exec memora-web python manage.py createsuperuser
 ```
 
 ---
 
-## 🧠 Desenvolvimento com VS Code + Docker
+## 🔁 Atualizações refletidas no Docker
 
-Se você usa VS Code com a extensão **Dev Containers**, conecte ao container com:
+> Toda alteração feita localmente (Windows) será refletida no container após reinício:
 
+```powershell
+docker-compose restart
 ```
-F1 → Dev Containers: Attach to Running Container
-→ memora-docker-memora-web-1
-```
-
-Abra a pasta `/var/www/html/sistemas/memora-env/memora`
 
 ---
 
-## 🔍 Endpoints disponíveis
+## 🧪 Verificação com script
 
-| Rota                  | Descrição                      |
-|-----------------------|-------------------------------|
-| `/admin/`             | Painel administrativo Django  |
-| `/sspgo/`             | Módulo principal da SSPGO     |
-| `/`                   | Página inicial (`perform`)    |
+Para testar se seu ambiente está sincronizado com o Docker:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\check_sync.ps1
+```
 
 ---
 
-## 📦 Variáveis importantes (.env)
+## 🧠 Dicas
 
-```env
-SECRET_KEY=sua_chave_secreta
+- Reinicie o container para recarregar views ou templates
+- Use `DEBUG=True` no ambiente de desenvolvimento
+- Nunca faça alterações direto dentro do container
+
+---
+
+## 📦 Variáveis úteis (.env)
+
+```
 DEBUG=True
+SECRET_KEY=sua_chave
 ```
 
 ---
 
-## 🚀 Futuro (CI/CD e Produção)
+## 🚀 CI/CD
 
-- [ ] Integração com GitHub Actions para build e teste
-- [ ] Dockerfile de produção (Gunicorn + Nginx)
-- [ ] Deploy remoto via SSH ou cloud (Render/Railway)
+O repositório já contém um pipeline GitHub Actions:
+
+- Testa o projeto com `python manage.py test`
+- Valida a build
+
+Arquivo: `.github/workflows/ci.yml`
 
 ---
 

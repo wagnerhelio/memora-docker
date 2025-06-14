@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - memora_data:/var/www/html/sistemas/memora-env
+      - .:/var/www/html/sistemas/memora-env
     environment:
       - DJANGO_SETTINGS_MODULE=memora.settings
 
